@@ -1,0 +1,11 @@
+config.json
+.local/
+input/
+output/
+.web_jobs/
+.lawgo_cache*/
+__pycache__/
+.git/
+.venv/
+.embedding_cache/
+tests/

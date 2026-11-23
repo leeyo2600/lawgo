@@ -1,0 +1,3 @@
+law_go_수정본_v3
+Windows x64 portable, CPython 3.13.3 embedded
+Based on law_go_수정본_v2.zip

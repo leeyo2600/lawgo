@@ -1,0 +1,31 @@
+config.json
+.local/
+.web_jobs/
+.lawgo_cache*/
+__pycache__/
+.venv/
+.embedding_cache/
+output/
+input/
+.DS_Store
+.env
+.env.*
+!.env.example
+.llm_cache*/
+*.log
+*.pem
+*.key
+.pytest_cache/
+.dev-deps/
+.verification/
+
+# Bundled runtime and third-party libraries (distributed in the portable ZIP, not in git)
+runtime/
+vendor/
+runtime_cache/
+
+# Processing results and local data
+results/
+*.xlsx
+!web/static/*.xlsx
+.claude/

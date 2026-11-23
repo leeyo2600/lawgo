@@ -1,0 +1,37 @@
+﻿LAWGO v3 - Python included (Windows 64-bit)
+==========================================
+
+This is a fully pre-packaged Python runtime build.
+You DO NOT need to install Python, Anaconda, VS Code, or pip packages.
+
+START
+  1. Extract the entire law_go_수정본_v3.zip archive to a normal folder.
+  2. Open the extracted law_go_수정본_v3 folder.
+  3. Double-click LAWGO_RUN.cmd.
+  4. Leave the black window open while using the web app.
+  5. The browser should open at http://127.0.0.1:8000
+  6. Upload an .xlsx regulation workbook, enter the OpenAI API key and
+     National Law Information Center API value, and run the job.
+  7. Download the completed result before closing the black window.
+
+WHAT IS INCLUDED
+  runtime\python.exe       - CPython 3.13.3 (Windows x64)
+  runtime\python313.dll    - Python interpreter DLL
+  runtime\python313.zip    - standard library
+  runtime\python313._pth   - local-only package import paths
+  .dev-deps\ and vendor\ - required web app Python packages
+
+IMPORTANT
+  - No first-run Python/PyPI package download.
+  - The application STILL requires internet access to reach the two APIs.
+  - The bundled BGE model/torch are NOT included; the existing application
+    uses its built-in character n-gram fallback when BGE is absent.
+  - The target Windows PC must allow local .cmd and .exe execution and
+    outbound HTTPS to the relevant API services.
+  - Keep all ZIP files/folders together; do not copy LAWGO_RUN.cmd alone.
+  - If an error occurs, run LAWGO_SELFTEST.cmd (checks offline local startup).
+
+The application logic is copied from law_go_수정본_v2.zip.
+All executable paths in Windows launchers point to runtime\python.exe.
+The embedded Python is bundled from python-3.13.3-embed-amd64.zip.
+Windows interactive startup and external API access are not tested here.

@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="csrf-token" content="{{ csrf }}">
+  <title>법령정보 정비 도우미</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <script defer src="{{ url_for('static', filename='app.js') }}"></script>
+</head>
+<body>
+  <a class="skip" href="#workspace">본문 바로가기</a>
+  <div class="service-strip"><div class="wrap">지자체 규제목록 정비 서비스</div></div>
+  <header class="site-header"><div class="wrap header-inner">
+    <a class="brand ministry-brand" href="/" aria-label="법령정보 채우기 홈"><img src="{{ url_for('static', filename='mois-logo.jpg') }}" alt="행정안전부" width="942" height="228"></a>
+    <span class="header-caption service-title">법령정보 채우기</span>
+  </div></header>
+  <main class="wrap" id="workspace">
+    <div class="page-heading"><h1>규제목록 정비</h1><p>기존 엑셀 양식을 유지하며, 필요한 법령 내용을 채워드립니다.</p></div>
+    <div class="tabs" role="tablist" aria-label="작업 단계">
+      <button id="tab-input" role="tab" aria-controls="panel-input" aria-selected="true" data-tab="input"><span class="tab-number">01</span> 입력·실행</button>
+      <button id="tab-progress" role="tab" aria-controls="panel-progress" aria-selected="false" tabindex="-1" data-tab="progress"><span class="tab-number">02</span> 진행 상황<span id="running-dot" class="running-dot" hidden aria-label="실행 중"></span></button>
+      <button id="tab-download" role="tab" aria-controls="panel-download" aria-selected="false" tabindex="-1" data-tab="download"><span class="tab-number">03</span> 다운로드<span id="done-dot" class="done-dot" hidden aria-label="완료"></span></button>
+    </div>
+    <div id="notice" class="notice" role="alert" hidden></div>
+    <section id="panel-input" class="panel" role="tabpanel" aria-labelledby="tab-input">
+      <form id="run-form">
+        <div class="panel-heading"><h2>파일 및 API 연결</h2></div>
+        <div class="input-grid">
+          <div class="upload-column"><label for="file">규제목록 엑셀</label>
+            <div class="dropzone" id="dropzone"><svg class="upload-icon" viewBox="0 0 48 48" aria-hidden="true"><path d="M14 6h15l8 8v28H14zM29 6v9h8M19 27l5-5 5 5M24 22v12"/></svg><strong>파일을 여기에 놓아주세요</strong><p>법령명이 포함된 규제목록 엑셀 파일</p><label class="button secondary file-button" for="file">파일 선택</label><input id="file" class="file-input" type="file" accept=".xlsx" aria-describedby="file-help"><small id="file-help">XLSX · 최대 15MB</small></div>
+            <div class="file-summary" id="file-summary" hidden><span class="file-symbol" aria-hidden="true">X</span><div><strong id="file-name"></strong><span id="file-count"></span></div><button type="button" id="change-file" class="text-button">변경</button></div>
+            <div class="sheet-field" id="sheet-field" hidden><label for="sheet">처리할 시트</label><select id="sheet"></select></div>
+            <p class="field-help upload-help">‘내용’ 열이나 ‘수정사항’ 열이 없어도 올릴 수 있습니다.<br>없는 결과 열만 오른쪽에 추가하며, 기존 내용과 서식은 유지합니다.</p>
+          </div>
+          <div class="connection-column"><fieldset id="connection-fields" disabled><legend class="visually-hidden">API 연결 정보</legend>
+            <label for="api-key">OpenAI API 키</label><div class="password-field"><input id="api-key" type="password" autocomplete="off" spellcheck="false" placeholder="API 키를 입력해주세요" required><button type="button" id="show-key" aria-label="API 키 보기" aria-pressed="false">보기</button></div>
+            <p class="field-help" id="credential-status" role="status">마지막으로 입력한 키를 이 PC에 저장하고 다음 실행 때 불러옵니다.</p>
+            <label for="oc">국가법령정보 API 키</label><input id="oc" type="password" autocomplete="off" spellcheck="false" placeholder="API 키를 입력해주세요" required>
+          </fieldset></div>
+        </div>
+        <div class="form-footer"><p id="run-hint">파일과 API 정보를 입력하면 실행할 수 있습니다.</p><button id="start" type="submit" class="button primary" disabled>실행하기 <span aria-hidden="true">→</span></button></div>
+      </form>
+    </section>
+    <section id="panel-progress" class="panel progress-panel" role="tabpanel" aria-labelledby="tab-progress" hidden>
+      <div class="panel-heading"><h2>처리 진행 상황</h2><span class="status-label" id="status-label">대기</span></div>
+      <div class="progress-center"><div class="state-icon" id="state-icon" aria-hidden="true"><span></span></div><h3 id="progress-title" aria-live="polite">아직 실행한 작업이 없습니다</h3><p id="progress-message">입력·실행 탭에서 파일을 올리고 실행해주세요.</p></div>
+      <div class="progress-details"><div class="count-line"><div><strong id="completed">0</strong><span>건 / <span id="total">0</span>건</span></div><b id="percent">0%</b></div><progress id="progress-bar" max="100" value="0" aria-label="전체 처리 진행률"></progress><div class="time-grid"><div><span>경과 시간</span><strong id="elapsed">00:00</strong></div><div><span>예상 남은 시간</span><strong id="eta">—</strong></div></div></div>
+      <div class="progress-footer"><p id="progress-help">탭을 이동해도 실행 중인 작업은 계속됩니다.</p><button type="button" class="button secondary" id="stop" hidden>일시 중단</button><button type="button" class="button primary" id="resume" hidden>이어서 실행하기</button><button type="button" class="button secondary" data-go="input" id="go-input">입력·실행으로</button></div>
+    </section>
+    <section id="panel-download" class="panel download-panel" role="tabpanel" aria-labelledby="tab-download" hidden>
+      <div class="panel-heading"><h2>결과 파일 다운로드</h2></div>
+      <div id="download-empty" class="empty-state"><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M10 31v9h28v-9M24 6v25M15 22l9 9 9-9"/></svg><h3 id="download-title">완료된 파일이 여기에 표시됩니다</h3><p id="download-message">작업이 끝나면 입력한 엑셀 양식 그대로 다운로드할 수 있습니다.</p><button type="button" class="button secondary" data-go="progress">진행 상황 확인</button></div>
+      <div id="download-ready" hidden><div class="success-mark" aria-hidden="true">✓</div><h3>파일 준비가 완료되었습니다</h3><p class="download-description">법령별 내용과 수정사항을 입력한 양식에 반영했습니다.</p><div class="download-file"><span class="file-symbol" aria-hidden="true">X</span><div><strong id="result-name"></strong><span id="result-count"></span></div><span class="file-extension">XLSX</span></div><a id="download" class="button primary" href="#">완료 파일 다운로드 <span aria-hidden="true">↓</span></a><button type="button" class="text-button new-file" data-go="input">다른 파일 처리하기</button></div>
+      <div id="partial-area" class="partial-area" hidden><p>중단 전까지 완료한 결과를 저장할 수 있습니다. 나머지 행은 입력 상태로 유지됩니다.</p><a id="partial-download" class="button secondary" href="#">중간 결과 다운로드</a></div>
+    </section>
+    <p class="page-footnote">조회가 어려운 항목은 엑셀의 ‘수정사항’에서 확인할 수 있습니다.</p>
+  </main>
+  <footer><div class="wrap"><strong>행정안전부</strong><span>© 데이터정보화담당관. All rights reserved.</span></div></footer>
+</body>
+</html>
